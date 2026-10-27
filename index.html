@@ -416,14 +416,25 @@ $("filters").addEventListener("click", event => {
   renderLibrary();
 });
 
-function applyTheme(theme) {
+
+function applyTheme(theme, persist = true) {
   $("theme").value = theme;
   document.body.dataset.theme = theme;
+
   $("themeButtons").querySelectorAll("button").forEach(button => {
-    button.classList.toggle("active", button.dataset.theme === theme);
+    button.classList.toggle(
+      "active",
+      button.dataset.theme === theme
+    );
   });
+
+  if (persist) {
+    localStorage.setItem("iv-theme-v1", theme);
+  }
+
   renderSlots();
 }
+
 
 $("theme").addEventListener("change", () => applyTheme($("theme").value));
 
@@ -432,10 +443,21 @@ $("themeButtons").addEventListener("click", event => {
   if (button) applyTheme(button.dataset.theme);
 });
 
+
+function applyBackdrop(value, persist = true) {
+  $("wallpaperColor").value = value;
+  $("phone").style.background =
+    value === "default" ? "" : value;
+
+  if (persist) {
+    localStorage.setItem("iv-backdrop-v1", value);
+  }
+}
+
 $("wallpaperColor").addEventListener("change", () => {
-  const value = $("wallpaperColor").value;
-  $("phone").style.background = value === "default" ? "" : value;
+  applyBackdrop($("wallpaperColor").value);
 });
+
 
 $("swapMode").addEventListener("click", () => {
   swapMode = !swapMode;
@@ -476,7 +498,11 @@ $("closePreview").onclick = () => {
 (async () => {
   try {
     db = await openDB();
-    applyTheme("Neon");
+    const savedTheme = localStorage.getItem("iv-theme-v1") || "Neon";
+const savedBackdrop = localStorage.getItem("iv-backdrop-v1") || "default";
+
+applyTheme(savedTheme, false);
+applyBackdrop(savedBackdrop, false);
     await refresh();
   } catch (error) {
     console.error(error);
