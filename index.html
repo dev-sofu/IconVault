@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101014">
+  <title>IconVault</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px 18px;
+      background: #101014;
+      color: #f5f5fa;
+      font-family: -apple-system, sans-serif;
+    }
+    header { margin-bottom: 26px; }
+    .brand { color: #b49aff; font-size: 13px; }
+    h1 { margin: 8px 0; font-size: 32px; }
+    p { color: #a6a6b5; }
+    input, .upload {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin: 14px 0;
+      border: 1px solid #343440;
+      border-radius: 14px;
+      background: #1b1b24;
+      color: white;
+      font: inherit;
+    }
+    .upload {
+      text-align: center;
+      cursor: pointer;
+      background: #28203d;
+    }
+    #files { display: none; }
+    #gallery {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .tile {
+      min-width: 0;
+      padding: 8px;
+      border: 1px solid #30303b;
+      border-radius: 16px;
+      background: #1b1b24;
+      text-align: center;
+    }
+    .tile img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+    .tile p {
+      overflow-wrap: anywhere;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="brand">✦ ICONVAULT</span>
+    <h1>Your icons.<br>Your aesthetic.</h1>
+    <p>Build your own iPhone theme collection.</p>
+  </header>
+
+  <h2>My icon library</h2>
+
+  <input id="search" type="search"
+         placeholder="Search your icons...">
+
+  <label class="upload" for="files">
+    ＋ Import icon images
+  </label>
+  <input id="files" type="file"
+         accept="image/*" multiple>
+
+  <div id="gallery"></div>
+
+  <script>
+    const files = document.querySelector("#files");
+    const search = document.querySelector("#search");
+    const gallery = document.querySelector("#gallery");
+    const icons = [];
+
+    function render() {
+      gallery.replaceChildren();
+
+      icons
+        .filter(icon => icon.name.toLowerCase()
+          .includes(search.value.toLowerCase()))
+        .forEach(icon => {
+          const tile = document.createElement("div");
+          tile.className = "tile";
+
+          const img = document.createElement("img");
+          img.src = icon.url;
+          img.alt = icon.name;
+
+          const label = document.createElement("p");
+          label.textContent = icon.name;
+
+          tile.append(img, label);
+          gallery.append(tile);
+        });
+    }
+
+    files.addEventListener("change", () => {
+      for (const file of files.files) {
+        if (!file.type.startsWith("image/")) continue;
+
+        icons.push({
+          name: file.name,
+          url: URL.createObjectURL(file)
+        });
+      }
+
+      render();
+      files.value = "";
+    });
+
+    search.addEventListener("input", render);
+  </script>
+</body>
+</html>
