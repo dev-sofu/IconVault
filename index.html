@@ -2,129 +2,264 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101014">
-  <title>IconVault</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      padding: 24px 18px;
-      background: #101014;
-      color: #f5f5fa;
-      font-family: -apple-system, sans-serif;
-    }
-    header { margin-bottom: 26px; }
-    .brand { color: #b49aff; font-size: 13px; }
-    h1 { margin: 8px 0; font-size: 32px; }
-    p { color: #a6a6b5; }
-    input, .upload {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      margin: 14px 0;
-      border: 1px solid #343440;
-      border-radius: 14px;
-      background: #1b1b24;
-      color: white;
-      font: inherit;
-    }
-    .upload {
-      text-align: center;
-      cursor: pointer;
-      background: #28203d;
-    }
-    #files { display: none; }
-    #gallery {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-    .tile {
-      min-width: 0;
-      padding: 8px;
-      border: 1px solid #30303b;
-      border-radius: 16px;
-      background: #1b1b24;
-      text-align: center;
-    }
-    .tile img {
-      width: 100%;
-      aspect-ratio: 1;
-      object-fit: cover;
-      border-radius: 12px;
-    }
-    .tile p {
-      overflow-wrap: anywhere;
-      font-size: 11px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101014">
+<title>IconVault</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:24px 18px;background:#101014;color:#f5f5fa;font-family:-apple-system,sans-serif}
+header{margin-bottom:28px}
+.brand{color:#b49aff;font-size:12px;letter-spacing:3px}
+h1{font-size:34px;margin:10px 0}
+p,.muted{color:#aaaaba}
+input,select,button,.upload{font:inherit;border:1px solid #363644;border-radius:13px;padding:12px;background:#1b1b25;color:white}
+input,select{width:100%;margin:8px 0}
+button,.upload{cursor:pointer}
+.upload{display:block;text-align:center;margin:14px 0;background:#302246;border:0;padding:15px}
+#files{display:none}
+.filters{display:flex;gap:8px;overflow-x:auto;margin:12px 0}
+.filters button{white-space:nowrap}
+.filters button.active{background:#7555bd;border-color:#7555bd}
+#gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tile{min-width:0;padding:7px;background:#1b1b25;border:1px solid #30303b;border-radius:15px}
+.tile img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;cursor:pointer}
+.name{font-size:12px;overflow-wrap:anywhere;margin:7px 0}
+.category{font-size:10px;color:#bba5f4}
+.actions{display:flex;gap:5px;margin-top:8px}
+.actions button{padding:7px 4px;font-size:11px;flex:1}
+.danger{color:#ff9aab}
+#preview{display:none;position:fixed;inset:0;background:#09090df2;z-index:2;padding:25px;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+#preview img{max-width:90%;max-height:65vh;object-fit:contain;border-radius:20px}
+#preview button{min-width:120px}
+.status{font-size:12px;min-height:18px;color:#bba5f4}
+</style>
 </head>
 <body>
-  <header>
-    <span class="brand">✦ ICONVAULT</span>
-    <h1>Your icons.<br>Your aesthetic.</h1>
-    <p>Build your own iPhone theme collection.</p>
-  </header>
+<header>
+  <span class="brand">✦ ICONVAULT</span>
+  <h1>Your icons.<br>Your aesthetic.</h1>
+  <p>Your personal icon collection, saved on this device.</p>
+</header>
 
-  <h2>My icon library</h2>
+<h2>My library</h2>
+<div id="status" class="status">Opening your library…</div>
+<input id="search" type="search" placeholder="Search icons...">
 
-  <input id="search" type="search"
-         placeholder="Search your icons...">
+<label for="files" class="upload">＋ Import icon images</label>
+<input id="files" type="file" accept="image/*" multiple>
 
-  <label class="upload" for="files">
-    ＋ Import icon images
-  </label>
-  <input id="files" type="file"
-         accept="image/*" multiple>
+<label for="collection">Save imported icons to</label>
+<select id="collection">
+  <option>Dark</option>
+  <option>Neon</option>
+  <option>Minimal</option>
+  <option>Gaming</option>
+  <option>Favorites</option>
+</select>
 
-  <div id="gallery"></div>
+<div id="filters" class="filters">
+  <button class="active" data-category="All">All</button>
+  <button data-category="Dark">Dark</button>
+  <button data-category="Neon">Neon</button>
+  <button data-category="Minimal">Minimal</button>
+  <button data-category="Gaming">Gaming</button>
+  <button data-category="Favorites">Favorites</button>
+</div>
 
-  <script>
-    const files = document.querySelector("#files");
-    const search = document.querySelector("#search");
-    const gallery = document.querySelector("#gallery");
-    const icons = [];
+<div id="count" class="muted"></div>
+<div id="gallery"></div>
 
-    function render() {
-      gallery.replaceChildren();
+<div id="preview">
+  <img id="previewImage" alt="Icon preview">
+  <p id="previewName"></p>
+  <button id="closePreview">Close preview</button>
+</div>
 
-      icons
-        .filter(icon => icon.name.toLowerCase()
-          .includes(search.value.toLowerCase()))
-        .forEach(icon => {
-          const tile = document.createElement("div");
-          tile.className = "tile";
+<script>
+const $ = id => document.getElementById(id);
+const DB_NAME = "IconVaultDB";
+let db;
+let selected = "All";
+let icons = [];
+let objectUrls = [];
 
-          const img = document.createElement("img");
-          img.src = icon.url;
-          img.alt = icon.name;
+function status(message) {
+  $("status").textContent = message;
+}
 
-          const label = document.createElement("p");
-          label.textContent = icon.name;
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      request.result.createObjectStore("icons", {
+        keyPath: "id",
+        autoIncrement: true
+      });
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
 
-          tile.append(img, label);
-          gallery.append(tile);
-        });
+function allIcons() {
+  return new Promise((resolve, reject) => {
+    const request = db.transaction("icons")
+      .objectStore("icons").getAll();
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function saveIcon(icon) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("icons", "readwrite");
+    tx.objectStore("icons").add(icon);
+    tx.oncomplete = resolve;
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+function removeIcon(id) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("icons", "readwrite");
+    tx.objectStore("icons").delete(id);
+    tx.oncomplete = resolve;
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+function makeButton(label, action, extraClass = "") {
+  const button = document.createElement("button");
+  button.textContent = label;
+  button.className = extraClass;
+  button.addEventListener("click", action);
+  return button;
+}
+
+function showPreview(icon, url) {
+  $("previewImage").src = url;
+  $("previewName").textContent = icon.name;
+  $("preview").style.display = "flex";
+}
+
+$("closePreview").onclick = () => {
+  $("preview").style.display = "none";
+  $("previewImage").removeAttribute("src");
+};
+
+async function render() {
+  objectUrls.forEach(url => URL.revokeObjectURL(url));
+  objectUrls = [];
+  $("gallery").replaceChildren();
+
+  const query = $("search").value.toLowerCase();
+  const visible = icons.filter(icon =>
+    (selected === "All" || icon.category === selected) &&
+    icon.name.toLowerCase().includes(query)
+  );
+
+  $("count").textContent = `${visible.length} icons`;
+  if (!visible.length) {
+    $("gallery").textContent = "No icons here yet. Import some images!";
+    return;
+  }
+
+  visible.forEach(icon => {
+    const url = URL.createObjectURL(icon.blob);
+    objectUrls.push(url);
+
+    const tile = document.createElement("article");
+    tile.className = "tile";
+
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = icon.name;
+    img.loading = "lazy";
+    img.onclick = () => showPreview(icon, url);
+
+    const name = document.createElement("div");
+    name.className = "name";
+    name.textContent = icon.name;
+
+    const category = document.createElement("div");
+    category.className = "category";
+    category.textContent = icon.category;
+
+    const actions = document.createElement("div");
+    actions.className = "actions";
+
+    actions.append(
+      makeButton("Save", () => {
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = icon.name;
+        a.click();
+      }),
+      makeButton("Delete", async () => {
+        if (!confirm(`Delete ${icon.name}?`)) return;
+        await removeIcon(icon.id);
+        await refresh();
+      }, "danger")
+    );
+
+    tile.append(img, name, category, actions);
+    $("gallery").append(tile);
+  });
+}
+
+async function refresh() {
+  icons = await allIcons();
+  await render();
+  status("Library saved on this device.");
+}
+
+$("files").addEventListener("change", async event => {
+  const files = [...event.target.files];
+  let added = 0;
+
+  try {
+    for (const file of files) {
+      if (!file.type.startsWith("image/")) continue;
+      await saveIcon({
+        name: file.name,
+        category: $("collection").value,
+        blob: file
+      });
+      added++;
     }
+    await refresh();
+    status(`Imported ${added} image(s).`);
+  } catch (error) {
+    console.error(error);
+    status("Could not save all images. Check device storage.");
+  }
 
-    files.addEventListener("change", () => {
-      for (const file of files.files) {
-        if (!file.type.startsWith("image/")) continue;
+  event.target.value = "";
+});
 
-        icons.push({
-          name: file.name,
-          url: URL.createObjectURL(file)
-        });
-      }
+$("search").addEventListener("input", render);
 
-      render();
-      files.value = "";
-    });
+$("filters").addEventListener("click", event => {
+  const button = event.target.closest("button[data-category]");
+  if (!button) return;
 
-    search.addEventListener("input", render);
-  </script>
+  selected = button.dataset.category;
+  $("filters").querySelectorAll("button")
+    .forEach(b => b.classList.toggle("active", b === button));
+  render();
+});
+
+(async () => {
+  try {
+    db = await openDB();
+    await refresh();
+  } catch (error) {
+    console.error(error);
+    status("Storage unavailable. Try reloading the page.");
+  }
+})();
+</script>
 </body>
 </html>
+
