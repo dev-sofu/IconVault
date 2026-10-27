@@ -5,96 +5,187 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101014">
-<title>IconVault</title>
+<title>IconVault — Theme Studio</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;padding:24px 18px;background:#101014;color:#f5f5fa;font-family:-apple-system,sans-serif}
-header{margin-bottom:28px}
+:root{color-scheme:dark}
+body{margin:0;padding:22px 16px;background:#101014;color:#f5f5fa;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+header{margin-bottom:24px}
 .brand{color:#b49aff;font-size:12px;letter-spacing:3px}
-h1{font-size:34px;margin:10px 0}
+h1{font-size:32px;margin:10px 0}
 p,.muted{color:#aaaaba}
-input,select,button,.upload{font:inherit;border:1px solid #363644;border-radius:13px;padding:12px;background:#1b1b25;color:white}
-input,select{width:100%;margin:8px 0}
-button,.upload{cursor:pointer}
-.upload{display:block;text-align:center;margin:14px 0;background:#302246;border:0;padding:15px}
+h2{font-size:19px;margin-top:26px}
+button,input,select,.upload{font:inherit;border:1px solid #373744;border-radius:12px;padding:11px;background:#1d1d27;color:#fff}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #b49aff}
+.primary,.upload{background:#7555bd;border:0}
+.upload{display:block;text-align:center;margin:12px 0;cursor:pointer}
 #files{display:none}
-.filters{display:flex;gap:8px;overflow-x:auto;margin:12px 0}
-.filters button{white-space:nowrap}
-.filters button.active{background:#7555bd;border-color:#7555bd}
-#gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.tile{min-width:0;padding:7px;background:#1b1b25;border:1px solid #30303b;border-radius:15px}
-.tile img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;cursor:pointer}
-.name{font-size:12px;overflow-wrap:anywhere;margin:7px 0}
+input,select{width:100%;margin:7px 0}
+.row{display:flex;gap:8px;align-items:center}
+.row>*{min-width:0;flex:1}
+.studio{padding:14px;border:1px solid #373442;background:#191820;border-radius:24px}
+.themes{display:flex;gap:7px;overflow-x:auto;margin:12px 0}
+.themes button{white-space:nowrap;font-size:12px}
+.themes .active{border-color:#b49aff;background:#302345}
+.phone{padding:18px 12px 12px;border:2px solid #56525f;border-radius:34px;background:#24212d;max-width:390px;margin:12px auto}
+.phone-head{display:flex;justify-content:space-between;font-size:12px;margin:0 7px 18px}
+.phone-title{text-align:center;margin-bottom:20px}
+.phone-title h3{margin:0 0 5px;font-size:23px}
+#homeGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px 6px}
+.slot{padding:3px 1px;border:1px solid transparent;border-radius:12px;background:transparent;min-width:0}
+.slot.selected{border-color:#c0a3ff;background:#403153}
+.slot img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:13px;background:#393642}
+.placeholder{display:flex;aspect-ratio:1;align-items:center;justify-content:center;border-radius:13px;background:#35313e;color:#c8bbdf;font-size:23px}
+.slot span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;margin-top:5px}
+.dock{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:20px;padding:9px;background:#46414fbd;border-radius:22px}
+.dock .slot img,.dock .placeholder{border-radius:12px}
+#gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.tile{min-width:0;padding:7px;border:1px solid #343440;border-radius:14px;background:#1b1b24}
+.tile img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px}
+.name{font-size:11px;overflow-wrap:anywhere;margin:6px 0}
 .category{font-size:10px;color:#bba5f4}
-.actions{display:flex;gap:5px;margin-top:8px}
-.actions button{padding:7px 4px;font-size:11px;flex:1}
-.danger{color:#ff9aab}
-#preview{display:none;position:fixed;inset:0;background:#09090df2;z-index:2;padding:25px;align-items:center;justify-content:center;flex-direction:column;gap:14px}
-#preview img{max-width:90%;max-height:65vh;object-fit:contain;border-radius:20px}
-#preview button{min-width:120px}
-.status{font-size:12px;min-height:18px;color:#bba5f4}
+.tile button{width:100%;font-size:11px;padding:8px 3px;margin-top:5px}
+.note{font-size:12px;line-height:1.5}
+#preview{display:none;position:fixed;inset:0;z-index:10;background:#101014f7;padding:25px;align-items:center;justify-content:center;flex-direction:column;gap:15px}
+#preview img{max-width:85%;max-height:60vh;object-fit:contain;border-radius:20px}
+footer{margin:25px 0;color:#8e8d9d;font-size:11px;text-align:center}
+body[data-theme="Neon"] .phone{background:#151525}
+body[data-theme="Neon"] .placeholder{background:#302442;color:#d6aaff}
+body[data-theme="Midnight"] .phone{background:#08090d}
+body[data-theme="Midnight"] .placeholder{background:#222630;color:#aab5d4}
+body[data-theme="Pastel"] .phone{background:#463c50}
+body[data-theme="Pastel"] .placeholder{background:#71627a;color:#fff0ff}
+body[data-theme="Minimal"] .phone{background:#30302f}
+body[data-theme="Minimal"] .placeholder{background:#494946;color:#f4f0e8}
+body.preview-only #librarySection{display:none}
+@media(min-width:650px){body{max-width:850px;margin:auto}#gallery{grid-template-columns:repeat(5,minmax(0,1fr))}}
 </style>
 </head>
-<body>
+<body data-theme="Neon">
 <header>
   <span class="brand">✦ ICONVAULT</span>
-  <h1>Your icons.<br>Your aesthetic.</h1>
-  <p>Your personal icon collection, saved on this device.</p>
+  <h1>Theme Studio</h1>
+  <p>Design your Home Screen. Make it yours.</p>
 </header>
 
-<h2>My library</h2>
-<div id="status" class="status">Opening your library…</div>
-<input id="search" type="search" placeholder="Search icons...">
+<section class="studio">
+  <div class="row">
+    <div>
+      <label for="theme">Theme preset</label>
+      <select id="theme">
+        <option>Neon</option>
+        <option>Midnight</option>
+        <option>Pastel</option>
+        <option>Minimal</option>
+      </select>
+    </div>
+    <div>
+      <label for="wallpaperColor">Preview backdrop</label>
+      <select id="wallpaperColor">
+        <option value="default">Default</option>
+        <option value="#151329">Deep purple</option>
+        <option value="#102322">Forest</option>
+        <option value="#35202d">Burgundy</option>
+      </select>
+    </div>
+  </div>
 
-<label for="files" class="upload">＋ Import icon images</label>
-<input id="files" type="file" accept="image/*" multiple>
+  <div class="themes" id="themeButtons">
+    <button data-theme="Neon" class="active">⚡ Neon</button>
+    <button data-theme="Midnight">🌑 Midnight</button>
+    <button data-theme="Pastel">🌸 Pastel</button>
+    <button data-theme="Minimal">◻ Minimal</button>
+  </div>
 
-<label for="collection">Save imported icons to</label>
-<select id="collection">
-  <option>Dark</option>
-  <option>Neon</option>
-  <option>Minimal</option>
-  <option>Gaming</option>
-  <option>Favorites</option>
-</select>
+  <div class="phone" id="phone">
+    <div class="phone-head">
+      <span>9:41</span><span>● ● ● ▰</span>
+    </div>
+    <div class="phone-title">
+      <h3>My Home Screen</h3>
+      <div class="muted" id="themeLabel">NEON THEME</div>
+    </div>
+    <div id="homeGrid"></div>
+    <div class="dock" id="dock"></div>
+  </div>
 
-<div id="filters" class="filters">
-  <button class="active" data-category="All">All</button>
-  <button data-category="Dark">Dark</button>
-  <button data-category="Neon">Neon</button>
-  <button data-category="Minimal">Minimal</button>
-  <button data-category="Gaming">Gaming</button>
-  <button data-category="Favorites">Favorites</button>
-</div>
+  <p class="note" id="selectionHint">
+    Tap a slot to select it, then tap an icon in your library to assign it.
+  </p>
+  <div class="row">
+    <button id="swapMode">⇄ Swap slots</button>
+    <button id="clearSlot">Clear selected</button>
+  </div>
+  <div class="row">
+    <button id="resetLayout">Reset layout</button>
+    <button class="primary" id="previewMode">Preview only</button>
+  </div>
+  <p class="note muted">This is a visual mockup, not your actual iPhone Home Screen.</p>
+</section>
 
-<div id="count" class="muted"></div>
-<div id="gallery"></div>
+<section id="librarySection">
+  <h2>My icon library</h2>
+  <p class="muted note">Select a slot above, then choose an icon below.</p>
+  <input id="search" type="search" placeholder="Search your icons...">
+  <label for="files" class="upload">＋ Import icon images</label>
+  <input id="files" type="file" accept="image/*" multiple>
+  <label for="collection">Import into collection</label>
+  <select id="collection">
+    <option>Dark</option><option>Neon</option>
+    <option>Minimal</option><option>Gaming</option>
+    <option>Favorites</option>
+  </select>
+  <div id="filters" class="themes">
+    <button class="active" data-category="All">All</button>
+    <button data-category="Dark">Dark</button>
+    <button data-category="Neon">Neon</button>
+    <button data-category="Minimal">Minimal</button>
+    <button data-category="Gaming">Gaming</button>
+    <button data-category="Favorites">Favorites</button>
+  </div>
+  <p id="status" class="note muted">Opening library…</p>
+  <div id="gallery"></div>
+</section>
 
 <div id="preview">
   <img id="previewImage" alt="Icon preview">
   <p id="previewName"></p>
   <button id="closePreview">Close preview</button>
 </div>
+<footer>ICONVAULT · Your icons, your aesthetic.</footer>
 
 <script>
 const $ = id => document.getElementById(id);
 const DB_NAME = "IconVaultDB";
-let db;
-let selected = "All";
-let icons = [];
-let objectUrls = [];
+const STORE = "icons";
+const SLOT_COUNT = 20;
 
-function status(message) {
-  $("status").textContent = message;
+let db, icons = [], selectedSlot = "home-0";
+let swapMode = false, firstSwap = null;
+let category = "All", urls = new Map();
+let layout = loadLayout();
+
+function loadLayout() {
+  try {
+    return JSON.parse(localStorage.getItem("iv-layout-v1")) || {};
+  } catch { return {}; }
+}
+
+function saveLayout() {
+  localStorage.setItem("iv-layout-v1", JSON.stringify(layout));
+}
+
+function slotKey(index) {
+  return index < 16 ? `home-${index}` : `dock-${index - 16}`;
 }
 
 function openDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, 1);
     request.onupgradeneeded = () => {
-      request.result.createObjectStore("icons", {
-        keyPath: "id",
-        autoIncrement: true
+      request.result.createObjectStore(STORE, {
+        keyPath: "id", autoIncrement: true
       });
     };
     request.onsuccess = () => resolve(request.result);
@@ -104,162 +195,294 @@ function openDB() {
 
 function allIcons() {
   return new Promise((resolve, reject) => {
-    const request = db.transaction("icons")
-      .objectStore("icons").getAll();
+    const request = db.transaction(STORE)
+      .objectStore(STORE).getAll();
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
 }
 
-function saveIcon(icon) {
+function writeIcon(icon) {
   return new Promise((resolve, reject) => {
-    const tx = db.transaction("icons", "readwrite");
-    tx.objectStore("icons").add(icon);
+    const tx = db.transaction(STORE, "readwrite");
+    tx.objectStore(STORE).add(icon);
     tx.oncomplete = resolve;
     tx.onerror = () => reject(tx.error);
   });
 }
 
-function removeIcon(id) {
+function deleteIcon(id) {
   return new Promise((resolve, reject) => {
-    const tx = db.transaction("icons", "readwrite");
-    tx.objectStore("icons").delete(id);
+    const tx = db.transaction(STORE, "readwrite");
+    tx.objectStore(STORE).delete(id);
     tx.oncomplete = resolve;
     tx.onerror = () => reject(tx.error);
   });
 }
 
-function makeButton(label, action, extraClass = "") {
+function setStatus(message) {
+  $("status").textContent = message;
+}
+
+function iconURL(icon) {
+  if (!urls.has(icon.id)) {
+    urls.set(icon.id, URL.createObjectURL(icon.blob));
+  }
+  return urls.get(icon.id);
+}
+
+function getIcon(id) {
+  return icons.find(icon => String(icon.id) === String(id));
+}
+
+function createSlot(key, label, dock = false) {
   const button = document.createElement("button");
-  button.textContent = label;
-  button.className = extraClass;
-  button.addEventListener("click", action);
+  button.className = "slot" + (selectedSlot === key ? " selected" : "");
+  button.setAttribute("aria-label", label);
+  button.setAttribute("aria-pressed", String(selectedSlot === key));
+
+  const icon = getIcon(layout[key]);
+  if (icon) {
+    const img = document.createElement("img");
+    img.src = iconURL(icon);
+    img.alt = icon.name;
+    button.append(img);
+  } else {
+    const empty = document.createElement("div");
+    empty.className = "placeholder";
+    empty.textContent = "+";
+    button.append(empty);
+  }
+
+  const caption = document.createElement("span");
+  caption.textContent = icon ? icon.name : label;
+  button.append(caption);
+
+  button.addEventListener("click", () => {
+    if (swapMode) {
+      if (!firstSwap) {
+        firstSwap = key;
+        selectedSlot = key;
+        $("selectionHint").textContent = "Now tap the second slot to swap positions.";
+      } else {
+        const a = layout[firstSwap];
+        const b = layout[key];
+        if (a === undefined) delete layout[key];
+        else layout[key] = a;
+        if (b === undefined) delete layout[firstSwap];
+        else layout[firstSwap] = b;
+        firstSwap = null;
+        selectedSlot = key;
+        saveLayout();
+        $("selectionHint").textContent = "Slots swapped. Tap two more slots or turn swap mode off.";
+      }
+    } else {
+      selectedSlot = key;
+      $("selectionHint").textContent =
+        `Selected ${label}. Now tap an icon below to assign it.`;
+    }
+    renderSlots();
+  });
+
   return button;
 }
 
-function showPreview(icon, url) {
-  $("previewImage").src = url;
-  $("previewName").textContent = icon.name;
-  $("preview").style.display = "flex";
+function renderSlots() {
+  $("homeGrid").replaceChildren();
+  $("dock").replaceChildren();
+
+  for (let i = 0; i < SLOT_COUNT; i++) {
+    const key = slotKey(i);
+    const label = i < 16 ? `Slot ${i + 1}` : `Dock ${i - 15}`;
+    const button = createSlot(key, label, i >= 16);
+    (i < 16 ? $("homeGrid") : $("dock")).append(button);
+  }
+
+  $("themeLabel").textContent = $("theme").value.toUpperCase() + " THEME";
 }
 
-$("closePreview").onclick = () => {
-  $("preview").style.display = "none";
-  $("previewImage").removeAttribute("src");
-};
-
-async function render() {
-  objectUrls.forEach(url => URL.revokeObjectURL(url));
-  objectUrls = [];
+function renderLibrary() {
   $("gallery").replaceChildren();
-
   const query = $("search").value.toLowerCase();
+
   const visible = icons.filter(icon =>
-    (selected === "All" || icon.category === selected) &&
+    (category === "All" || icon.category === category) &&
     icon.name.toLowerCase().includes(query)
   );
 
-  $("count").textContent = `${visible.length} icons`;
   if (!visible.length) {
-    $("gallery").textContent = "No icons here yet. Import some images!";
+    $("gallery").textContent = "No matching icons. Import some images to get started.";
     return;
   }
 
   visible.forEach(icon => {
-    const url = URL.createObjectURL(icon.blob);
-    objectUrls.push(url);
-
     const tile = document.createElement("article");
     tile.className = "tile";
 
     const img = document.createElement("img");
-    img.src = url;
+    img.src = iconURL(icon);
     img.alt = icon.name;
-    img.loading = "lazy";
-    img.onclick = () => showPreview(icon, url);
 
     const name = document.createElement("div");
     name.className = "name";
     name.textContent = icon.name;
 
-    const category = document.createElement("div");
-    category.className = "category";
-    category.textContent = icon.category;
+    const cat = document.createElement("div");
+    cat.className = "category";
+    cat.textContent = icon.category || "Uncategorized";
 
-    const actions = document.createElement("div");
-    actions.className = "actions";
+    const assign = document.createElement("button");
+    assign.className = "primary";
+    assign.textContent = "＋ Assign to slot";
+    assign.onclick = () => {
+      layout[selectedSlot] = icon.id;
+      saveLayout();
+      renderSlots();
+      setStatus(`${icon.name} assigned to ${selectedSlot}.`);
+    };
 
-    actions.append(
-      makeButton("Save", () => {
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = icon.name;
-        a.click();
-      }),
-      makeButton("Delete", async () => {
-        if (!confirm(`Delete ${icon.name}?`)) return;
-        await removeIcon(icon.id);
-        await refresh();
-      }, "danger")
-    );
+    const preview = document.createElement("button");
+    preview.textContent = "Preview";
+    preview.onclick = () => {
+      $("previewImage").src = iconURL(icon);
+      $("previewName").textContent = icon.name;
+      $("preview").style.display = "flex";
+    };
 
-    tile.append(img, name, category, actions);
+    const download = document.createElement("button");
+    download.textContent = "Download";
+    download.onclick = () => {
+      const a = document.createElement("a");
+      a.href = iconURL(icon);
+      a.download = icon.name;
+      a.click();
+    };
+
+    const remove = document.createElement("button");
+    remove.textContent = "Delete";
+    remove.onclick = async () => {
+      if (!confirm(`Delete ${icon.name}?`)) return;
+      await deleteIcon(icon.id);
+      Object.keys(layout).forEach(key => {
+        if (String(layout[key]) === String(icon.id)) delete layout[key];
+      });
+      saveLayout();
+      urls.delete(icon.id);
+      await refresh();
+    };
+
+    tile.append(img, name, cat, assign, preview, download, remove);
     $("gallery").append(tile);
   });
 }
 
 async function refresh() {
   icons = await allIcons();
-  await render();
-  status("Library saved on this device.");
+  renderSlots();
+  renderLibrary();
+  setStatus(`${icons.length} icons in your local library.`);
 }
 
 $("files").addEventListener("change", async event => {
-  const files = [...event.target.files];
-  let added = 0;
-
+  let count = 0;
   try {
-    for (const file of files) {
+    for (const file of [...event.target.files]) {
       if (!file.type.startsWith("image/")) continue;
-      await saveIcon({
+      await writeIcon({
         name: file.name,
         category: $("collection").value,
         blob: file
       });
-      added++;
+      count++;
     }
     await refresh();
-    status(`Imported ${added} image(s).`);
+    setStatus(`Imported ${count} image(s).`);
   } catch (error) {
     console.error(error);
-    status("Could not save all images. Check device storage.");
+    setStatus("Import failed. Check browser storage and try again.");
   }
-
   event.target.value = "";
 });
 
-$("search").addEventListener("input", render);
+$("search").addEventListener("input", renderLibrary);
 
 $("filters").addEventListener("click", event => {
   const button = event.target.closest("button[data-category]");
   if (!button) return;
-
-  selected = button.dataset.category;
-  $("filters").querySelectorAll("button")
-    .forEach(b => b.classList.toggle("active", b === button));
-  render();
+  category = button.dataset.category;
+  $("filters").querySelectorAll("button").forEach(item => {
+    item.classList.toggle("active", item === button);
+  });
+  renderLibrary();
 });
+
+function applyTheme(theme) {
+  $("theme").value = theme;
+  document.body.dataset.theme = theme;
+  $("themeButtons").querySelectorAll("button").forEach(button => {
+    button.classList.toggle("active", button.dataset.theme === theme);
+  });
+  renderSlots();
+}
+
+$("theme").addEventListener("change", () => applyTheme($("theme").value));
+
+$("themeButtons").addEventListener("click", event => {
+  const button = event.target.closest("button[data-theme]");
+  if (button) applyTheme(button.dataset.theme);
+});
+
+$("wallpaperColor").addEventListener("change", () => {
+  const value = $("wallpaperColor").value;
+  $("phone").style.background = value === "default" ? "" : value;
+});
+
+$("swapMode").addEventListener("click", () => {
+  swapMode = !swapMode;
+  firstSwap = null;
+  $("swapMode").textContent = swapMode ? "Cancel swapping" : "⇄ Swap slots";
+  $("selectionHint").textContent = swapMode
+    ? "Tap the first slot, then the second slot to swap their contents."
+    : "Tap a slot to select it, then choose an icon below.";
+});
+
+$("clearSlot").addEventListener("click", () => {
+  delete layout[selectedSlot];
+  saveLayout();
+  renderSlots();
+  setStatus("Selected slot cleared.");
+});
+
+$("resetLayout").addEventListener("click", () => {
+  if (!confirm("Clear all Home Screen assignments? Your icon library will remain.")) return;
+  layout = {};
+  saveLayout();
+  selectedSlot = "home-0";
+  renderSlots();
+  setStatus("Layout reset. Your imported icons are safe.");
+});
+
+$("previewMode").addEventListener("click", () => {
+  const active = document.body.classList.toggle("preview-only");
+  $("previewMode").textContent = active ? "Back to editor" : "Preview only";
+  window.scrollTo({top: 0, behavior: "smooth"});
+});
+
+$("closePreview").onclick = () => {
+  $("preview").style.display = "none";
+  $("previewImage").removeAttribute("src");
+};
 
 (async () => {
   try {
     db = await openDB();
+    applyTheme("Neon");
     await refresh();
   } catch (error) {
     console.error(error);
-    status("Storage unavailable. Try reloading the page.");
+    setStatus("Could not open icon storage. Your previous data has not been intentionally deleted.");
   }
 })();
 </script>
 </body>
 </html>
-
