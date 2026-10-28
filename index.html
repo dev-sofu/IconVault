@@ -525,6 +525,26 @@ const savedBackdrop = localStorage.getItem("iv-backdrop-v1") || "default";
 
 applyTheme(savedTheme, false);
 applyBackdrop(savedBackdrop, false);
+const collectionSelect = $("collection");
+const collectionStorageKey = "iv-import-collection-v1";
+const savedCollection = localStorage.getItem(collectionStorageKey);
+
+if (
+  savedCollection &&
+  Array.from(collectionSelect.options).some(
+    option => option.value === savedCollection ||
+              option.textContent.trim() === savedCollection
+  )
+) {
+  collectionSelect.value = savedCollection;
+}
+
+collectionSelect.addEventListener("change", () => {
+  localStorage.setItem(
+    collectionStorageKey,
+    collectionSelect.value
+  );
+});
     await refresh();
   } catch (error) {
     console.error(error);
