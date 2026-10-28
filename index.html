@@ -41,6 +41,16 @@ input,select{width:100%;margin:7px 0}
 .combo-actions{display:flex;gap:7px}
 .combo-actions button{flex:1;font-size:12px;padding:8px 5px}
 .wallpaper-thumb{width:100%;height:58px;object-fit:cover;border-radius:8px;margin-bottom:7px}
+.icon-packs{border:1px solid #373442;border-radius:18px;padding:12px;margin:18px 0;background:#14131b}
+.icon-packs h2{margin-top:8px}
+#packList{display:grid;gap:8px;margin-top:10px}
+.pack-card{border:1px solid #373744;border-radius:12px;padding:10px;background:#1d1d27}
+.pack-card.active{border-color:#b49aff;background:#302345}
+.pack-name{font-weight:600;overflow-wrap:anywhere}
+.pack-meta{font-size:12px;color:#aaaaba;margin:5px 0 9px}
+.pack-actions{display:flex;gap:6px}
+.pack-actions button{flex:1;font-size:12px;padding:8px 4px}
+#packStatus{min-height:18px}
 .phone-head{display:flex;justify-content:space-between;font-size:12px;margin:0 7px 18px}
 .phone-title{text-align:center;margin-bottom:20px}
 .phone-title h3{margin:0 0 5px;font-size:23px}
@@ -138,6 +148,19 @@ body.preview-only #librarySection{display:none}
     <div class="dock" id="dock"></div>
   </div>
 
+  <section class="icon-packs" aria-labelledby="packsHeading">
+    <h2 id="packsHeading">Custom App Icon Packs</h2>
+    <p class="note">Each pack keeps its own Home Screen icon assignments. Switching packs saves the current layout and restores the selected pack. Your icon library remains unchanged.</p>
+    <label for="packName">Pack name</label>
+    <input id="packName" type="text" maxlength="50" placeholder="e.g. Midnight Gaming">
+    <div class="row">
+      <button id="createPack" class="primary">Create from current layout</button>
+      <button id="returnBaseLayout">Return to saved layout</button>
+    </div>
+    <p id="packStatus" class="note muted" aria-live="polite">No packs yet. Create one from your current layout.</p>
+    <div id="packList"><p class="note muted">No saved icon packs yet.</p></div>
+  </section>
+
   <p class="note" id="selectionHint">
     Tap a slot to select it, then tap an icon in your library to assign it.
   </p>
@@ -217,6 +240,9 @@ let category = "All", urls = new Map();
 let layout = loadLayout();
 let wallpaperData = localStorage.getItem("iv-wallpaper-data-v1") || "";
 const COMBOS_KEY = "iv-wallpaper-combos-v1";
+const PACKS_KEY = "iv-icon-packs-v1";
+const ACTIVE_PACK_KEY = "iv-active-icon-pack-v1";
+const BASE_LAYOUT_KEY = "iv-icon-packs-base-layout-v1";
 
 function loadLayout() {
   try {
@@ -226,7 +252,107 @@ function loadLayout() {
 
 function saveLayout() {
   localStorage.setItem("iv-layout-v1", JSON.stringify(layout));
+  const activeId = localStorage.getItem(ACTIVE_PACK_KEY);
+  if (activeId) {
+    const packs = readPacks();
+    const active = packs.find(pack => pack.id === activeId);
+    if (active) { active.layout = {...layout}; writePacks(packs); }
+  }
 }
+
+function readPacks() {
+  try {
+    const value = JSON.parse(localStorage.getItem(PACKS_KEY) || "[]");
+    return Array.isArray(value) ? value.filter(pack =>
+      pack && typeof pack.id === "string" && typeof pack.name === "string" &&
+      pack.layout && typeof pack.layout === "object" && !Array.isArray(pack.layout)
+    ) : [];
+  } catch { return []; }
+}
+function writePacks(packs) { localStorage.setItem(PACKS_KEY, JSON.stringify(packs)); }
+function cloneLayout(value) {
+  return value && typeof value === "object" && !Array.isArray(value) ? {...value} : {};
+}
+function saveActivePackLayout() {
+  const id = localStorage.getItem(ACTIVE_PACK_KEY);
+  if (!id) return;
+  const packs = readPacks(), active = packs.find(pack => pack.id === id);
+  if (active) { active.layout = cloneLayout(layout); writePacks(packs); }
+}
+function renderPacks() {
+  const root = $("packList"); root.replaceChildren();
+  const packs = readPacks(), activeId = localStorage.getItem(ACTIVE_PACK_KEY);
+  if (!packs.length) {
+    const empty = document.createElement("p"); empty.className = "note muted";
+    empty.textContent = "No saved icon packs yet."; root.append(empty); return;
+  }
+  packs.forEach(pack => {
+    const card = document.createElement("article");
+    card.className = "pack-card" + (pack.id === activeId ? " active" : "");
+    const title = document.createElement("div"); title.className = "pack-name"; title.textContent = pack.name;
+    const meta = document.createElement("div"); meta.className = "pack-meta";
+    const count = Object.keys(pack.layout).length;
+    meta.textContent = (pack.id === activeId ? "Active pack · " : "") + count + " assigned slot" + (count === 1 ? "" : "s");
+    const actions = document.createElement("div"); actions.className = "pack-actions";
+    const apply = document.createElement("button"); apply.textContent = pack.id === activeId ? "Active" : "Apply";
+    apply.className = "primary"; apply.disabled = pack.id === activeId; apply.onclick = () => activatePack(pack.id);
+    const rename = document.createElement("button"); rename.textContent = "Rename";
+    rename.onclick = () => {
+      const next = prompt("Enter a new name for this pack:", pack.name);
+      if (next === null) return;
+      if (!next.trim()) { $("packStatus").textContent = "Pack name cannot be empty."; return; }
+      const all = readPacks(), target = all.find(item => item.id === pack.id);
+      if (!target) return;
+      target.name = next.trim().slice(0, 50); writePacks(all); renderPacks();
+      $("packStatus").textContent = "Pack renamed.";
+    };
+    const del = document.createElement("button"); del.textContent = "Delete";
+    del.onclick = () => {
+      if (!confirm("Delete “" + pack.name + "”? Your icon library and other packs will be kept.")) return;
+      if (pack.id === activeId) returnToBaseLayout();
+      writePacks(readPacks().filter(item => item.id !== pack.id)); renderPacks();
+      $("packStatus").textContent = "Pack deleted. Other packs and your icon library were preserved.";
+    };
+    actions.append(apply, rename, del); card.append(title, meta, actions); root.append(card);
+  });
+}
+function activatePack(id) {
+  const packs = readPacks(), target = packs.find(pack => pack.id === id);
+  if (!target) return;
+  const activeId = localStorage.getItem(ACTIVE_PACK_KEY);
+  if (!activeId) localStorage.setItem(BASE_LAYOUT_KEY, JSON.stringify(cloneLayout(layout)));
+  else saveActivePackLayout();
+  layout = cloneLayout(target.layout);
+  localStorage.setItem("iv-layout-v1", JSON.stringify(layout));
+  localStorage.setItem(ACTIVE_PACK_KEY, target.id);
+  selectedSlot = "home-0"; renderSlots(); renderPacks();
+  $("packStatus").textContent = "Applied “" + target.name + "”. Other packs remain saved independently.";
+}
+function returnToBaseLayout() {
+  if (localStorage.getItem(ACTIVE_PACK_KEY)) saveActivePackLayout();
+  const raw = localStorage.getItem(BASE_LAYOUT_KEY);
+  if (!raw) { localStorage.removeItem(ACTIVE_PACK_KEY); renderPacks(); $("packStatus").textContent = "No saved pre-pack layout snapshot exists."; return; }
+  try {
+    layout = cloneLayout(JSON.parse(raw)); localStorage.setItem("iv-layout-v1", JSON.stringify(layout));
+    localStorage.removeItem(ACTIVE_PACK_KEY); selectedSlot = "home-0"; renderSlots(); renderPacks();
+    $("packStatus").textContent = "Restored the layout saved before icon packs were first applied.";
+  } catch { $("packStatus").textContent = "Could not restore the saved layout snapshot."; }
+}
+$("createPack").addEventListener("click", () => {
+  const name = $("packName").value.trim();
+  if (!name) { $("packStatus").textContent = "Enter a name for your pack first."; $("packName").focus(); return; }
+  const packs = readPacks();
+  if (packs.length >= 30) { $("packStatus").textContent = "You can save up to 30 packs. Delete one to create another."; return; }
+  if (localStorage.getItem(ACTIVE_PACK_KEY)) saveActivePackLayout();
+  else if (!localStorage.getItem(BASE_LAYOUT_KEY)) localStorage.setItem(BASE_LAYOUT_KEY, JSON.stringify(cloneLayout(layout)));
+  const pack = {id:"pack-"+Date.now()+"-"+Math.random().toString(36).slice(2,8),name:name.slice(0,50),layout:cloneLayout(layout),createdAt:new Date().toISOString()};
+  try {
+    packs.unshift(pack); writePacks(packs); localStorage.setItem(ACTIVE_PACK_KEY, pack.id);
+    $("packName").value = ""; renderPacks();
+    $("packStatus").textContent = "Pack created from the current layout. Assign icons to customize this pack independently.";
+  } catch (error) { console.error(error); $("packStatus").textContent = "Could not save the pack. Browser storage may be full."; }
+});
+$("returnBaseLayout").addEventListener("click", returnToBaseLayout);
 
 function slotKey(index) {
   return index < 16 ? `home-${index}` : `dock-${index - 16}`;
@@ -700,6 +826,7 @@ applyTheme(savedTheme, false);
 applyBackdrop(savedBackdrop, false);
 applyWallpaperPreview();
 renderCombos();
+renderPacks();
 const collectionSelect = $("collection");
 const collectionStorageKey = "iv-import-collection-v1";
 const savedCollection = localStorage.getItem(collectionStorageKey);
@@ -789,6 +916,9 @@ $("exportBackup").addEventListener("click", async () => {
       backdrop: $("wallpaperColor").value,
       wallpaperData: wallpaperData,
       wallpaperCombos: readCombos(),
+      iconPacks: readPacks(),
+      activeIconPackId: localStorage.getItem(ACTIVE_PACK_KEY),
+      baseLayoutSnapshot: localStorage.getItem(BASE_LAYOUT_KEY),
       layout: layout,
       icons: backupIcons
     };
@@ -922,11 +1052,18 @@ $("backupFile").addEventListener("change", async event => {
     if (wallpaperData) localStorage.setItem("iv-wallpaper-data-v1", wallpaperData);
     else localStorage.removeItem("iv-wallpaper-data-v1");
     if (Array.isArray(backup.wallpaperCombos)) localStorage.setItem(COMBOS_KEY, JSON.stringify(backup.wallpaperCombos.slice(0, 8)));
+    if (Array.isArray(backup.iconPacks)) writePacks(backup.iconPacks.filter(pack => pack && typeof pack.id === "string" && typeof pack.name === "string" && pack.layout && typeof pack.layout === "object" && !Array.isArray(pack.layout)).slice(0, 30));
+    else localStorage.removeItem(PACKS_KEY);
+    if (typeof backup.activeIconPackId === "string") localStorage.setItem(ACTIVE_PACK_KEY, backup.activeIconPackId);
+    else localStorage.removeItem(ACTIVE_PACK_KEY);
+    if (typeof backup.baseLayoutSnapshot === "string") localStorage.setItem(BASE_LAYOUT_KEY, backup.baseLayoutSnapshot);
+    else localStorage.removeItem(BASE_LAYOUT_KEY);
 
     applyTheme(backup.theme, false);
     applyBackdrop(backup.backdrop, false);
     applyWallpaperPreview();
     renderCombos();
+    renderPacks();
 
     await refresh();
 
